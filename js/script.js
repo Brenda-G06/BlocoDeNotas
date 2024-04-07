@@ -1,74 +1,123 @@
 let addNote = document.querySelector('#add-note');//Botão de para adicionar nota
-let closeModal =  document.querySelector('#close-modal'); //fechar janela modal com os detalhes da nota.
+let closeModalView =  document.querySelector('#close-modal'); //fechar janela modal com os detalhes da nota.
 let modal = document.querySelector('#modal'); //Modal para edição das notas
 let modalView = document.querySelector('#modal-view'); //Modal para exibição dos detalhes da nota
-let notes = document.querySelectorAll('.item-note');//Lista divs com dados das notas
+let notes = document.querySelector('#notes');//Lista divs com dados das notas
 let btnSaveNote = document.querySelector("#btn-save-note"); //icone para salvar nota
-let btnCloseNote = document.querySelector("#btn-close-note");//icone para fechar modal de edição de nota.
+let btnCloseModal = document.querySelector("#btn-close-note");//icone para fechar modal de edição de nota.
 
-const loadNotes= () =>{
-  let resp=localStorage.getItem('notes');
-  resp=JSON.parse(resp);
-  return resp;
-  //return [{title:'Prova de Programação', content : 'Estudar algorimos, com atenção especial listas ordenadas'},{},{}];
+
+//++++++++++++++++EVENTOS+++++++++++++++++++
+
+
+addNote.addEventListener('click',(evt)=>
+{
+  evt.preventDefault(); //PREVINE DA PÁGINA RECARREGAR COM O LINK
+  modal.style.display='block';
+  notes.style.display = 'none';
+  addNote.style.display = 'none';
+});
+
+
+btnCloseModal.addEventListener('click', (evt) =>
+{
+  evt.preventDefault();
+  modal.style.display='none';
+  notes.style.display = 'flex';
+  addNote.style.display = 'block';
+});
+
+
+btnSaveNote.addEventListener('click', (evt) =>
+{
+  evt.preventDefault();
+  let objNote = {
+    id : document.querySelector("#input-id").value.trim(), //retorna a string sem os espaços em branco
+    title : document.querySelector("#input-title").value.trim(),
+    content : document.querySelector("#input-content").value.trim()
+ 
+  };
+
+
+  console.log(objNote);
+  saveNote(objNote);
+});
+
+
+
+
+//+++++++++++++++FUNÇÕES+++++++++++++++++++++
+
+
+const saveNote = (note) =>{
+ let listNotes = loadNotes();
+
+
+  if(note.id.trim().length < 1){
+    note.id = new Date().getTime();
+    document.querySelector('#input-id').value = note.id;
+    listNotes.push(note);
+  }else{
+    console.log(note.id);
+    listNotes.forEach((item, i) =>{
+      if(item.id == note.id){
+        listNotes[i] = note;
+      }
+    });
+  }
+  note.lastTime = new Date().getTime();
+  console.log(listNotes)
+  listNotes = JSON.stringify(listNotes);
+  localStorage.setItem('notes', listNotes);
 };
 
 
-/**
- * Modal de edição da anotação
- */
-addNote.addEventListener('click',
-(evt)=>{
-  evt.preventDefault();
-  modal.style.display='block';
-  document.querySelector('#notes').style.display='none';
-  document.querySelector('#controls').style.display='none';
-});
+const loadNotes = () =>{
+  let listNotes = localStorage.getItem('notes');
+  console.log(listNotes);
 
 
-//Botão para salvar a nota
-btnSaveNote.addEventListener('click',(evt)=>{
-  evt.preventDefault();
- 
-  saveNote(
-    {
-      id: document.querySelector("#input-id").value,
-      title:document.querySelector("#input-title").value,
-      content:document.querySelector("#input-content").value,
-     
-    }
-  );  
-});
-
-
-const saveNote = (note) => {
-  //Registra o horário da ultima alteração
-  note.lastTime = new Date().getTime();
-  let notes= loadNotes();
-  //Se uma lista não existir
-  if (!notes){
-    //criar lista vazia
-    notes=[];
+  if(!listNotes){
+    listNotes = [];
   }
-  if(note.id.length == 0){
-    note.id= new Date().getTime();
-    //Atualiza o valor do id da nota
-    document.querySelector("#input-id").value=note.id;
-    //incluir a nota na lista
-    notes.push(note);
-  }else{
-    //percore todos os itens da lista
-    for (i=0; i<notes.length; i++){
-      //Quando encontrar o id equivalente
-      if(notes[i].id==note.id){
-        //substituir as informações do item
-        notes[i]=note;
-      }
-    }
+  else{
+    listNotes = JSON.parse(listNotes);
   }
-  //Transforma objeto em uma string
-  notes=JSON.stringify(notes);
-  //Salva string no local storage
-  localStorage.setItem('notes', notes);
- 
+  return listNotes;
 }
+
+
+const listNotes = () => {
+  let listNotes = loadNotes();
+  listNotes.forEach((item) =>{
+    let divCard = document.createElement('div');
+    divCard.className = 'car';
+    divCard.style.width = '18rem';
+    notes.appendChild(divCard); //coloca divCard dentro de divCardBody
+    let divCardBody = document.createElement('div');
+    divCardBody.className = "card-body";
+    divCard.appendChild(divCardBody);
+    let h1 = document.createElement('h1');
+    h1.innerText = item.title;
+    divCardBody.appendChild(h1);
+    let pContent = document.createElement('p');
+    pContent.innerText = item.content;
+    divCardBody.appendChild(pContent)
+
+
+    let pLastTime = document.createElement('p')
+    pLastTime.innerText = item.lastTime;
+    divCardBody.appendChild(pLastTime)
+
+
+    divCard.addEventListener('click', (evt) =>{
+     
+    })
+
+
+
+
+  })
+};
+listNotes();
+
