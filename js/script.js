@@ -1,5 +1,5 @@
 let addNote = document.querySelector('#add-note');//Botão de para adicionar nota
-let closeModalView =  document.querySelector('#close-modal'); //fechar janela modal com os detalhes da nota.
+let closeModalView = document.querySelector('#close-modal'); //fechar janela modal com os detalhes da nota.
 let modal = document.querySelector('#modal'); //Modal para edição das notas
 let modalView = document.querySelector('#modal-view'); //Modal para exibição dos detalhes da nota
 let notes = document.querySelector('#notes');//Lista divs com dados das notas
@@ -7,36 +7,45 @@ let btnSaveNote = document.querySelector("#btn-save-note"); //icone para salvar 
 let btnCloseModal = document.querySelector("#btn-close-note");//icone para fechar modal de edição de nota.
 
 
+
+
 //++++++++++++++++EVENTOS+++++++++++++++++++
 
 
-addNote.addEventListener('click',(evt)=>
-{
+
+
+addNote.addEventListener('click', (evt) => {
   evt.preventDefault(); //PREVINE DA PÁGINA RECARREGAR COM O LINK
-  modal.style.display='block';
+  modal.style.display = 'block';
   notes.style.display = 'none';
   addNote.style.display = 'none';
 });
 
 
-btnCloseModal.addEventListener('click', (evt) =>
-{
+
+
+btnCloseModal.addEventListener('click', (evt) => {
   evt.preventDefault();
-  modal.style.display='none';
+  listNotes();
+  modal.style.display = 'none';
   notes.style.display = 'flex';
   addNote.style.display = 'block';
 });
 
 
-btnSaveNote.addEventListener('click', (evt) =>
-{
+
+
+btnSaveNote.addEventListener('click', (evt) => {
   evt.preventDefault();
   let objNote = {
-    id : document.querySelector("#input-id").value.trim(), //retorna a string sem os espaços em branco
-    title : document.querySelector("#input-title").value.trim(),
-    content : document.querySelector("#input-content").value.trim()
- 
+    id: document.querySelector("#input-id").value.trim(), //retorna a string sem os espaços em branco
+    title: document.querySelector("#input-title").value.trim(),
+    content: document.querySelector("#input-content").value.trim()
+
+
   };
+
+
 
 
   console.log(objNote);
@@ -44,23 +53,35 @@ btnSaveNote.addEventListener('click', (evt) =>
 });
 
 
+closeModalView.addEventListener('click', evt => {
+  evt.preventDefault();
+  // modalView.style.display = "none";
+  notes.style.display = 'flex';
+  addNote.style.display = 'block';
+})
+
+
 
 
 //+++++++++++++++FUNÇÕES+++++++++++++++++++++
 
 
-const saveNote = (note) =>{
- let listNotes = loadNotes();
 
 
-  if(note.id.trim().length < 1){
+const saveNote = (note) => {
+  let listNotes = loadNotes();
+
+
+
+
+  if (note.id.trim().length < 1) {
     note.id = new Date().getTime();
     document.querySelector('#input-id').value = note.id;
     listNotes.push(note);
-  }else{
+  } else {
     console.log(note.id);
-    listNotes.forEach((item, i) =>{
-      if(item.id == note.id){
+    listNotes.forEach((item, i) => {
+      if (item.id == note.id) {
         listNotes[i] = note;
       }
     });
@@ -72,24 +93,31 @@ const saveNote = (note) =>{
 };
 
 
-const loadNotes = () =>{
+
+
+const loadNotes = () => {
   let listNotes = localStorage.getItem('notes');
   console.log(listNotes);
 
 
-  if(!listNotes){
+
+
+  if (!listNotes) {
     listNotes = [];
   }
-  else{
+  else {
     listNotes = JSON.parse(listNotes);
   }
   return listNotes;
 }
 
 
+
+
 const listNotes = () => {
+  notes.innerHTML = "";
   let listNotes = loadNotes();
-  listNotes.forEach((item) =>{
+  listNotes.forEach((item) => {
     let divCard = document.createElement('div');
     divCard.className = 'car';
     divCard.style.width = '18rem';
@@ -101,23 +129,78 @@ const listNotes = () => {
     h1.innerText = item.title;
     divCardBody.appendChild(h1);
     let pContent = document.createElement('p');
-    pContent.innerText = item.content;
+    pContent.innerText = new Date(item.lastTime).toLocaleDateString();
     divCardBody.appendChild(pContent)
+
+
 
 
     let pLastTime = document.createElement('p')
     pLastTime.innerText = item.lastTime;
     divCardBody.appendChild(pLastTime)
+    divCard.addEventListener('click', (evt) => {
+      evt.preventDefault();
+      showNotes(item)
+    });
 
 
-    divCard.addEventListener('click', (evt) =>{
-     
-    })
+
+
 
 
 
 
   })
 };
+
+
+
+
+const showNotes = (note) => {
+  document.querySelector('#title-note').innerHTML = "<h1>" + note.title + "</h1>"
+  document.querySelector('#content-note').innerHTML = "<p>" + note.content + "</p>"
+  document.querySelector("#title-note").innerHTML +=
+    "<p> Ultima alteracao: " + new Date(note.lastTime).toLocaleDateString() + "</p>"
+    document.querySelector("#controls-note").innerHTML = "";
+  let aDelete = document.createElement('a');
+  let i = document.createElement('i');
+  i.style.color = "#F00"
+  i.className = "bi";
+  i.className = "bi-trash"
+  aDelete.appendChild(i);
+  document.querySelector("#controls-note").appendChild(aDelete)
+  aDelete.addEventListener('click', (evt)=>{
+    evt.preventDefault();
+    deleteNote(note.id);
+  })
+
+
+  // modalView.style.display = 'block';
+  notes.style.display = 'none';
+  addNote.style.display = 'none';
+
+
+
+
+
+
+
+
+
+
+}
+const deleteNote = (id) =>{
+  listNotes = loadNotes();
+  listNotes.forEach((note, i) =>{
+    if(note.id===id){
+      listNotes.splice(i,1);
+    }
+  });
+  listNotes = JSON.stringify();
+  localStorage.setItem("notes", listNotes)
+}
 listNotes();
+
+
+
 
